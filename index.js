@@ -43,14 +43,14 @@ bot.on('text', function(msg)
         }
     }
     if (messageText === 'L'){
-        let answer = getLeagueData('fiercekilla');
-        sendMessageByBot(messageChatId, 'Вы играли за ' + answer.champName + '. Победа:  ' + answer.win);
+        let answer = getLeagueData('alicefear', messageChatId);
+
     }
 
     console.log(msg);
 });
 
-function getLeagueData(name) {
+function getLeagueData(name, chatId) {
     let sumId;
     request('https://ru.api.riotgames.com/lol/summoner/v3/summoners/by-name/' + name + '?api_key=RGAPI-1fc5b64a-0dec-433c-9cb6-93b34d30c663', function (error, response, body) {
         console.log('SummonerId:', JSON.parse(body).id); // Print the HTML for the Google homepage.
@@ -65,7 +65,8 @@ function getLeagueData(name) {
                     champName: name
                 };
                 console.log(data);
-                return data;
+                let w = win ? 'победили' : 'проиграли';
+                sendMessageByBot(chatId, 'Последний раз вы ' + w + ' за ' + data.champName);
             })
         });
     });
