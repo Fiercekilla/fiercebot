@@ -1,0 +1,29 @@
+{
+  "name": "fiercebot",
+  "version": "0.0.1",
+  "description": "test bot for telegram",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fiercekilla/fiercebot.git"
+  },
+  "keywords": [
+    "telegram",
+    "fierce",
+    "test",
+    "bot"
+  ],
+  "dependencies": {
+    "node-telegram-bot-api":"^0.27.0",
+    "request": "^2.81.0"
+  },
+  "author": "FierceDev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Fiercekilla/fiercebot/issues"
+  },
+  "homepage": "https://github.com/Fiercekilla/fiercebot#readme"
+}
