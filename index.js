@@ -42,8 +42,14 @@ bot.on('text', function(msg)
             bot.sendPhoto(messageChatId,kittenArray[3]);
         }
     }
-    if (messageText === 'L'){
-        let answer = getLeagueData('alicefear', messageChatId);
+    if (messageText.indexOf('/l') !== -1){
+        let mesage = messageText.split(' ');
+        if(mesage.length === 2){
+            getLeagueData(mesage[1], messageChatId);
+        } else {
+            sendMessageByBot(messageChatId, 'Команда не верна. Введите /l *Имя призывателя*.');
+        }
+
 
     }
 
