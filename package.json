@@ -19,7 +19,8 @@
   "dependencies": {
     "https": "^1.0.0",
     "node-telegram-bot-api": "^0.27.0",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "request-promise": "^4.2.0"
   },
   "author": "FierceDev",
   "license": "ISC",

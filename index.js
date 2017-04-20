@@ -1,4 +1,5 @@
 let request = require('request');
+let rp = require('request-promise');
 let https = require('https');
 let TelegramBot = require('node-telegram-bot-api');
 
@@ -6,6 +7,7 @@ let token = '340829957:AAH2nqKteoElJw8tWQh3SJTCBIiQIixuTew';
 let botOptions = {
     polling: true
 };
+let itemsArray = [];
 let lolApiKey = 'RGAPI-1fc5b64a-0dec-433c-9cb6-93b34d30c663';
 let kittenArray = [
     'https://static1.squarespace.com/static/54e8ba93e4b07c3f655b452e/t/56c2a04520c64707756f4267/1455596221531/',
@@ -64,6 +66,7 @@ function getLeagueData(name, chatId) {
         request('https://ru.api.riotgames.com/api/lol/RU/v1.3/game/by-summoner/' + sumId + '/recent?api_key=RGAPI-1fc5b64a-0dec-433c-9cb6-93b34d30c663', function (error, response, body) {
             let matchList = JSON.parse(body).games;
             let win = matchList[0].stats['win'];
+            let stats = matchList[0].stats;
             request('https://ru.api.riotgames.com/lol/static-data/v3/champions/' + matchList[0].championId + '?champData=info&api_key=RGAPI-1fc5b64a-0dec-433c-9cb6-93b34d30c663', function (error, response, body) {
                 let name = JSON.parse(body).name;
                 let data = {
@@ -72,11 +75,31 @@ function getLeagueData(name, chatId) {
                 };
                 console.log(data);
                 let w = win ? 'победили' : 'проиграли';
-                sendMessageByBot(chatId, 'Последний раз вы ' + w + ' за ' + data.champName);
+                let KDA = (stats['championsKilled'] + stats['assists'])/stats['numDeaths'];
+                let statsKeys = Object.keys(stats);
+                itemsCollector(stats, statsKeys);
+                setTimeout(function () {
+                    console.log(itemsArray);
+                    sendMessageByBot(chatId, `Последний раз вы ${w} за ${data.champName}.\n
+Убито миньонов: ${stats['minionsKilled']}\n
+KDA: ${stats['championsKilled']}/${stats['numDeaths']}/${stats['assists']}(${KDA.toFixed(2)})\n
+Предметы:\n${itemsArray.join('\n')}`);
+                },500);
             })
         });
     });
 
+}
+
+function itemsCollector(obj,keys) {
+    for(let i = 0; i < keys.length; i++){
+        if (keys[i].indexOf('item') === 0){
+            rp('https://ru.api.riotgames.com/lol/static-data/v3/items/' + obj[keys[i]] + '?itemData=all&locale=ru_RU&api_key=RGAPI-1fc5b64a-0dec-433c-9cb6-93b34d30c663')
+                .then(function (res) {
+                    itemsArray.push(JSON.parse(res).name);
+                });
+        }
+    }
 }
 
 function sendMessageByBot(aChatId, aMessage)
