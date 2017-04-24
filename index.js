@@ -33,6 +33,8 @@ bot.on('text', function(msg)
     let messageDate = msg.date;
     let messageUsr = msg.from.username;
 
+    itemsArray = [];
+
     if (messageText === 'Привет') {
         sendMessageByBot(messageChatId, 'Привет киса, я тебя очень очень сильно люблю <3');
     }
@@ -73,19 +75,26 @@ function getLeagueData(name, chatId) {
                     win: win,
                     champName: name
                 };
-                console.log(data);
+                let rankedStats = [];
                 let w = win ? 'победили' : 'проиграли';
                 let KDA = (stats['championsKilled'] + stats['assists'])/stats['numDeaths'];
                 let statsKeys = Object.keys(stats);
                 itemsCollector(stats, statsKeys);
+                request('https://ru.api.riotgames.com/api/lol/RU/v2.5/league/by-summoner/' + sumId + '/entry?api_key=RGAPI-1fc5b64a-0dec-433c-9cb6-93b34d30c663',function (error, responce, body) {
+                    let stats = JSON.parse(body);
+                    stats[sumId].forEach(function (item) {
+                       rankedStats.push(leagueConverter(item));
+                    });
+                });
                 setTimeout(function () {
-                    console.log(itemsArray);
-                    sendMessageByBot(chatId, `Последний раз вы ${w} за ${data.champName}.\n
+                    sendMessageByBot(chatId,
+                        `Ранговая статистика: \n${rankedStats.join('\n')}\n
+Последний раз вы ${w} за ${data.champName}.\n
 Убито миньонов: ${stats['minionsKilled']}\n
 KDA: ${stats['championsKilled']}/${stats['numDeaths']}/${stats['assists']}(${KDA.toFixed(2)})\n
 Предметы:\n${itemsArray.join('\n')}`);
                 },500);
-            })
+            });
         });
     });
 
@@ -100,6 +109,67 @@ function itemsCollector(obj,keys) {
                 });
         }
     }
+}
+
+function leagueConverter(data) {
+    let result,
+        league,
+        type,
+        tier;
+    switch (data.queue){
+        case 'RANKED_SOLO_5x5':
+            type = 'Ранговая одиночная/парная: ';
+            break;
+        case 'RANKED_FLEX_SR':
+            type = 'Ранговая гибкая: ';
+            break;
+        default:
+            type = data.queue;
+            break;
+    }
+    switch (data.tier) {
+        case 'BRONZE':
+            league = 'Бронза';
+            break;
+        case 'SILVER':
+            league = 'Серебро';
+            break;
+        case 'GOLD':
+            league = 'Золото';
+            break;
+        case 'PLATINUM':
+            league = 'Платина';
+            break;
+        case 'DIAMOND':
+            league = 'Алмаз';
+            break;
+        case 'MASTER':
+            league = 'Мастер';
+            break;
+        case 'CHALLENGER':
+            league = "Претендент";
+            break;
+    }
+    switch (data.entries[0].division) {
+        case 'I':
+            tier = '1';
+            break;
+        case 'II':
+            tier = '2';
+            break;
+        case 'III':
+            tier = '3';
+            break;
+        case 'IV':
+            tier = '4';
+            break;
+        case 'V':
+            tier = '5';
+            break;
+    }
+    result = type + league + ' ' + tier + ' ' + ' ' + data.entries[0]['leaguePoints'] + 'ЛП';
+    return result;
+
 }
 
 function sendMessageByBot(aChatId, aMessage)
