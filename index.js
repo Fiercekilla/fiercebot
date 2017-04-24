@@ -115,6 +115,7 @@ function leagueConverter(data) {
     let result,
         league,
         type,
+        winrate,
         tier;
     switch (data.queue){
         case 'RANKED_SOLO_5x5':
@@ -167,7 +168,8 @@ function leagueConverter(data) {
             tier = '5';
             break;
     }
-    result = type + league + ' ' + tier + ' ' + ' ' + data.entries[0]['leaguePoints'] + 'ЛП';
+    winrate = data.entries[0].wins / (data.entries[0].wins + data.entries[0].losses) * 100;
+    result = type + '\n' + league + ' ' + tier + ' ' + ' ' + data.entries[0]['leaguePoints'] + 'ЛП \nСыграно игр:' + (data.entries[0].wins + data.entries[0].losses) + '\nПроцент побед: ' + winrate.toFixed(1) + '%\n';
     return result;
 
 }
